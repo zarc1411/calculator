@@ -1,78 +1,45 @@
-const numberButtons = document.querySelectorAll('.number');
-let currentNumber = "";
-
-numberButtons.forEach((number) => {
-    number.addEventListener('click', (e) => {
-        currentNumber += number.textContent;
-        displayNumbersOnScreen(currentNumber);
-        screenHasNumber = true;
-    });
-});
-
-let textOnScreen = document.getElementById('text');
-
-function displayNumbersOnScreen(currentNumber) {
-    textOnScreen.innerHTML = currentNumber;
-}
-
-const operatorButtons = document.querySelectorAll('.operator');
-let screenHasNumber = true;
-let equalsButtonPressed = false;
-
-operatorButtons.forEach((operator) => {
-    operator.addEventListener('click', (e) => {
-
-        if(equalsButtonPressed){
-            arrayOfNumbers.length = 0;
-            equalsButtonPressed = false;
-        }
-        let currentOperator = operator.textContent;
-        if (textOnScreen !== "" && screenHasNumber) {
-            textOnScreen.innerHTML = operator.textContent;
-            pushNumberToArray(currentNumber);
-            pushOperatorToArray(currentOperator);
-            currentNumber = "";
-            screenHasNumber = false;
-        }
-    })
-})
-
 let arrayOfNumbers = [];
 let arrayLength = 0;
+let currentText = "";
+let equalsButtonPressed = false;
+let textOnScreen = document.getElementById('text');
+const textOnScreenParentElement = document.querySelector('.large-screen');
 
-function pushNumberToArray(currentNumber) {
-    arrayLength = arrayOfNumbers.push(currentNumber);
+function addAndRemoveClasses(){
+    textOnScreenParentElement.classList.remove('large-screen');
+    textOnScreenParentElement.classList.add('small-screen');
+}
+const decreaseTheTextSize = () => addAndRemoveClasses();
+
+function checkIfTheTextLengthIsMoreThanLimit(){
+    if(currentText.length>10){
+        decreaseTheTextSize();
+    }
+}
+function showResultOnScreen(result) {
+    console.log(currentText.length);
+    checkIfTheTextLengthIsMoreThanLimit();
+    currentText = '' + result;
+    if (currentText.includes(".") && equalsButtonPressed) {
+        currentText = Number(currentText).toFixed(2);
+    }
+    textOnScreen.innerHTML = currentText;
 }
 
-function pushOperatorToArray(arithmeticOperator) {
-    arrayLength = arrayOfNumbers.push(arithmeticOperator);
-}
+const pushNumberToArray = currentText => arrayLength = arrayOfNumbers.push(currentText);
 
-const equalsButton = document.getElementById('equals');
-
-equalsButton.addEventListener('click', (e) => {
-    if (!screenHasNumber && textOnScreen !== "") {
-        alert('Please enter the next number');
-    }
-    else {
-        if (arrayLength > 0 && screenHasNumber) {
-            console.log(currentNumber);
-            pushNumberToArray(currentNumber);
-            calculate(arrayOfNumbers);
-        }
-    }
-    equalsButtonPressed = true;
-});
+const pushOperatorToArray = arithmeticOperator => arrayLength = arrayOfNumbers.push(arithmeticOperator);
 
 function calculate(arrayOfNumbers) {
-    for (let index = 0; index <= arrayLength - 3; index+=2) {
+    for (let index = 0; index <= arrayLength - 3; index += 2) {
         let result = '';
-        let numberOne = parseInt(arrayOfNumbers[index]);
+        let numberOne = parseFloat(arrayOfNumbers[index]);
         let arithmeticOperator = arrayOfNumbers[index + 1];
-        let numberTwo = parseInt(arrayOfNumbers[index + 2]);
+        let numberTwo = parseFloat(arrayOfNumbers[index + 2]);
         result += operate(arithmeticOperator, numberOne, numberTwo);
-        arrayOfNumbers[index+2] = parseInt(result);
-        showResultOnScreen(arrayOfNumbers[index+2]);
+        arrayOfNumbers[index + 2] = parseFloat(result);
+        equalsButtonPressed = true;
+        showResultOnScreen(arrayOfNumbers[index + 2]);
     }
 }
 
@@ -96,25 +63,118 @@ function operate(operator, numberOne, numberTwo) {
     return currentResult;
 }
 
-function add(numberOne, numberTwo) {
-    return numberOne + numberTwo;
-}
+const add = (numberOne, numberTwo) => numberOne + numberTwo;
+const subtract = (numberOne, numberTwo) => numberOne - numberTwo;
+const multiply = (numberOne, numberTwo) => numberOne * numberTwo;
+const divide = (numberOne, numberTwo) => numberOne / numberTwo;
+const clearArray = () => arrayOfNumbers.length = 0;
 
-function subtract(numberOne, numberTwo) {
-    return numberOne - numberTwo;
+function uncheckEqualsButtonIfChecked() {
+    if (equalsButtonPressed) {
+        clearArray();
+    }
+    equalsButtonPressed = false;
 }
+const numberButtons = document.querySelectorAll('.keypad-numbers');
 
-function multiply(numberOne, numberTwo) {
-    return numberOne * numberTwo;
-}
+numberButtons.forEach((number) => {
+    number.addEventListener('click', (e) => {
+        currentText += number.textContent;
+        showResultOnScreen(currentText);
+        screenHasNumber = true;
+    });
+});
 
-function divide(numberOne, numberTwo) {
-    return numberOne / numberTwo;
-}
+const operatorButtons = document.querySelectorAll('.keypad-operators');
+let screenHasNumber = false;
 
-function showResultOnScreen(result) {
-    currentNumber = '' + result;
-    textOnScreen.innerHTML = currentNumber;
-    //arrayOfNumbers.length = 0; //This clears the array
-    //arrayOfNumbers.push(currentNumber);
-}
+operatorButtons.forEach((operator) => {
+    operator.addEventListener('click', (e) => {
+
+        uncheckEqualsButtonIfChecked();
+        let currentOperator = operator.textContent;
+        if (textOnScreen !== "" && screenHasNumber) {
+            textOnScreen.innerHTML = operator.textContent;
+            pushNumberToArray(currentText);
+            pushOperatorToArray(currentOperator);
+            currentText = "";
+            screenHasNumber = false;
+        }
+    })
+})
+
+const equalsButton = document.getElementById('equals');
+
+equalsButton.addEventListener('click', (e) => {
+    if (!screenHasNumber && textOnScreen !== "" || equalsButtonPressed) {
+        alert('Please enter the next number');
+    }
+    else {
+        if (arrayLength > 0 && screenHasNumber) {
+            console.log(currentText);
+            pushNumberToArray(currentText);
+            calculate(arrayOfNumbers);
+            checkIfTheTextLengthIsMoreThanLimit();
+        }
+    }
+    equalsButtonPressed = true;
+});
+
+const clearScreenButton = document.getElementById('clear-screen');
+
+clearScreenButton.addEventListener('click', (e) => {
+    textOnScreen.innerHTML = "";
+    currentText = "";
+    clearArray();
+    screenHasNumber = false;
+    equalsButtonPressed = false;
+    textOnScreenParentElement.classList.add('large-screen');
+    textOnScreenParentElement.classList.remove('small-screen');
+});
+
+const plusMinus = document.getElementById('plus-minus');
+
+plusMinus.addEventListener('click', (e) => {
+    uncheckEqualsButtonIfChecked();
+    currentText = '-' + currentText;
+    showResultOnScreen(currentText);
+    equalsButtonPressed = false;
+});
+
+const percentOf = document.getElementById('percentage');
+
+percentOf.addEventListener('click', (e) => {
+    uncheckEqualsButtonIfChecked();
+    if (screenHasNumber) {
+        arrayLength = arrayOfNumbers.push(parseFloat(currentText / 100));
+        arrayLength = arrayOfNumbers.push('X');
+        console.log(parseFloat(currentText / 100));
+        currentText = '%';
+        showResultOnScreen(currentText);
+        currentText = "";
+        equalsButtonPressed = false;
+    }
+});
+
+const decimalButton = document.getElementById('decimal');
+
+decimalButton.addEventListener('click', (e) => {
+    if (screenHasNumber) {
+        currentText += '.';
+        showResultOnScreen(currentText);
+    }
+});
+
+const backSpaceButton = document.getElementById('backspace');
+
+backSpaceButton.addEventListener('click', (e) => {
+    if (screenHasNumber) {
+        if (currentText.length > 1) {
+            currentText = currentText.substring(0, currentText.length - 1);
+        }
+        else if (currentText != ' ') {
+            currentText = '0';
+        }
+        showResultOnScreen(currentText);
+    }
+})
