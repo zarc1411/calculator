@@ -15,7 +15,7 @@
     border-top-right-radius: 10px;
 }
 
-.screen-text {
+.large-screen {
     margin-top: -30px;
     height: 50px;
     font-size: 3em;
@@ -24,6 +24,14 @@
     padding-right: 10px;
 }
 
+.small-screen {
+    margin-top: 0px;
+    height: 50px;
+    font-size: 1.8em;
+    font-family: 'Manrope', sans-serif;
+    float: right;
+    padding-right: 3px;
+}
 .keypad {
     height: 300px;
     display: grid;
@@ -31,7 +39,7 @@
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
 }
 
-.operator, .options, .number, #equals {
+.keypad-operators, .keypad-options, .keypad-numbers, #equals, #decimal {
     background-color: #f0f0f0;
     border: none;
     font-size: 18px;
