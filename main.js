@@ -11,18 +11,21 @@ function addAndRemoveClasses(){
 }
 const decreaseTheTextSize = () => addAndRemoveClasses();
 
-function checkIfTheTextLengthIsMoreThanLimit(){
+function checksIfTheTextLengthIsMoreThanLimit(){
     if(currentText.length>10){
         decreaseTheTextSize();
     }
 }
-function showResultOnScreen(result) {
-    console.log(currentText.length);
-    checkIfTheTextLengthIsMoreThanLimit();
-    currentText = '' + result;
+function roundTheNumberToTwoPlaces(){
     if (currentText.includes(".") && equalsButtonPressed) {
         currentText = Number(currentText).toFixed(2);
     }
+}
+function showResultOnScreen(result) {
+    console.log(currentText.length);
+    checksIfTheTextLengthIsMoreThanLimit();
+    currentText = '' + result;
+    roundTheNumberToTwoPlaces();
     textOnScreen.innerHTML = currentText;
 }
 
@@ -75,13 +78,19 @@ function uncheckEqualsButtonIfChecked() {
     }
     equalsButtonPressed = false;
 }
+
 const numberButtons = document.querySelectorAll('.keypad-numbers');
 
 numberButtons.forEach((number) => {
     number.addEventListener('click', (e) => {
-        currentText += number.textContent;
-        showResultOnScreen(currentText);
-        screenHasNumber = true;
+        if(currentText.length<32){
+            currentText += number.textContent;
+            showResultOnScreen(currentText);
+            screenHasNumber = true;
+        }
+        else{
+            alert('You have reached the limit. Please delete some characters if you wish to continue');
+        }
     });
 });
 
@@ -114,7 +123,7 @@ equalsButton.addEventListener('click', (e) => {
             console.log(currentText);
             pushNumberToArray(currentText);
             calculate(arrayOfNumbers);
-            checkIfTheTextLengthIsMoreThanLimit();
+            checksIfTheTextLengthIsMoreThanLimit();
         }
     }
     equalsButtonPressed = true;
@@ -135,10 +144,18 @@ clearScreenButton.addEventListener('click', (e) => {
 const plusMinus = document.getElementById('plus-minus');
 
 plusMinus.addEventListener('click', (e) => {
-    uncheckEqualsButtonIfChecked();
-    currentText = '-' + currentText;
-    showResultOnScreen(currentText);
-    equalsButtonPressed = false;
+    if(!currentText.includes('-')){
+        uncheckEqualsButtonIfChecked();
+        currentText = '-' + currentText;
+        showResultOnScreen(currentText);
+        equalsButtonPressed = false;
+    }
+    else if(currentText.length>1 && currentText.includes('-')){
+        uncheckEqualsButtonIfChecked();
+        currentText = currentText.substr(1);
+        showResultOnScreen(currentText);
+        equalsButtonPressed = false;
+    }
 });
 
 const percentOf = document.getElementById('percentage');
@@ -159,7 +176,7 @@ percentOf.addEventListener('click', (e) => {
 const decimalButton = document.getElementById('decimal');
 
 decimalButton.addEventListener('click', (e) => {
-    if (screenHasNumber) {
+    if (screenHasNumber && !currentText.includes('.')) {
         currentText += '.';
         showResultOnScreen(currentText);
     }
